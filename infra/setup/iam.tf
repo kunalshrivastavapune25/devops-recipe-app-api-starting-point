@@ -152,6 +152,7 @@ resource "aws_iam_user_policy_attachment" "ec2" {
   policy_arn = aws_iam_policy.ec2.arn
 }
 
+
 #########################
 # Policy for RDS access #
 #########################
@@ -167,9 +168,7 @@ data "aws_iam_policy_document" "rds" {
       "rds:CreateDBInstance",
       "rds:DeleteDBInstance",
       "rds:ListTagsForResource",
-      "rds:ModifyDBInstance",
-      "rds:AddTagsToResource",
-      "rds:RemoveTagsFromResource"
+      "rds:ModifyDBInstance"
     ]
     resources = ["*"]
   }
@@ -185,49 +184,3 @@ resource "aws_iam_user_policy_attachment" "rds" {
   user       = aws_iam_user.cd.name
   policy_arn = aws_iam_policy.rds.arn
 }
-
-
-###########################################
-# Policy for IAM Service Linked Role access #
-###########################################
-
-data "aws_iam_policy_document" "iam_service_linked_role" {
-  statement {
-    effect = "Allow"
-    actions = [
-      "iam:CreateServiceLinkedRole"
-    ]
-    resources = ["arn:aws:iam::*:role/aws-service-role/rds.amazonaws.com*"]
-    condition {
-      test     = "StringLike"
-      variable = "iam:AWSServiceName"
-      values   = ["rds.amazonaws.com"]
-    }
-  }
-}
-
-resource "aws_iam_policy" "iam_slr" {
-  name        = "${aws_iam_user.cd.name}-iam-slr"
-  description = "Allow user to create RDS Service Linked Role"
-  policy      = data.aws_iam_policy_document.iam_service_linked_role.json
-}
-
-resource "aws_iam_user_policy_attachment" "iam_slr" {
-  user       = aws_iam_user.cd.name
-  policy_arn = aws_iam_policy.iam_slr.arn
-}
-
-data "aws_iam_policy_document" "iam_slr" {
-  statement {
-    effect    = "Allow"
-    actions   = ["iam:CreateServiceLinkedRole"]
-    resources = ["arn:aws:iam::*:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"]
-
-    condition {
-      test     = "StringLike"
-      variable = "iam:AWSServiceName"
-      values   = ["rds.amazonaws.com"]
-    }
-  }
-}
-
