@@ -39,8 +39,8 @@ resource "aws_db_instance" "main" {
   engine_version             = "15.3"
   auto_minor_version_upgrade = true
   instance_class             = "db.t4g.micro"
-  username                   = var.db_username
-  password                   = var.db_password
+  username                   = "recipeapp"
+  password                   = "recipeapp"
   skip_final_snapshot        = true
   db_subnet_group_name       = aws_db_subnet_group.main.name
   multi_az                   = false
