@@ -167,20 +167,21 @@ data "aws_iam_policy_document" "rds" {
       "rds:CreateDBInstance",
       "rds:DeleteDBInstance",
       "rds:ListTagsForResource",
-      "rds:ModifyDBInstance"
+      "rds:ModifyDBInstance",
+      "rds:AddTagsToResource",     # <--- ADD THIS
+      "rds:RemoveTagsFromResource" # <--- ADD THIS
     ]
     resources = ["*"]
   }
+
   statement {
-    sid    = "CreateRdsServiceLinkedRole" #optional
+    sid    = "CreateRdsServiceLinkedRole"
     effect = "Allow"
     actions = [
       "iam:CreateServiceLinkedRole",
-      "iam:DeleteServiceLinkedRole"
+      "iam:GetRole" # Added this to help TF check if role exists
     ]
-    resources = [
-      "arn:aws:iam::*:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"
-    ]
+    resources = ["arn:aws:iam::*:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"]
     condition {
       test     = "StringEquals"
       variable = "iam:AWSServiceName"
@@ -189,4 +190,13 @@ data "aws_iam_policy_document" "rds" {
   }
 }
 
+resource "aws_iam_policy" "rds" {
+  name        = "${aws_iam_user.cd.name}-rds"
+  description = "Allow user to manage RDS resources."
+  policy      = data.aws_iam_policy_document.rds.json
+}
 
+resource "aws_iam_user_policy_attachment" "rds" {
+  user       = aws_iam_user.cd.name
+  policy_arn = aws_iam_policy.rds.arn
+}
