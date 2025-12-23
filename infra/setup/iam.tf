@@ -100,6 +100,7 @@ data "aws_iam_policy_document" "ec2" {
     effect = "Allow"
     actions = [
       "ec2:DescribeVpcs",
+      "ec2:DescribeAvailabilityZones",
       "ec2:CreateTags",
       "ec2:CreateVpc",
       "ec2:DeleteVpc",
@@ -214,4 +215,30 @@ resource "aws_iam_policy" "iam_slr" {
 resource "aws_iam_user_policy_attachment" "iam_slr" {
   user       = aws_iam_user.cd.name
   policy_arn = aws_iam_policy.iam_slr.arn
+}
+
+data "aws_iam_policy_document" "iam_slr" {
+  statement {
+    effect    = "Allow"
+    actions   = ["iam:CreateServiceLinkedRole"]
+    resources = ["arn:aws:iam::*:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"]
+
+    condition {
+      test     = "StringLike"
+      variable = "iam:AWSServiceName"
+      values   = ["rds.amazonaws.com"]
+    }
+  }
+}
+
+
+
+
+
+data "aws_iam_policy_document" "service_linked_rds" {
+  statement {
+    effect    = "Allow"
+    actions   = ["iam:CreateServiceLinkedRole","iam:TagRole","iam:GetRole","iam:DeleteServiceLinkedRole","iam:GetServiceLinkedRoleDeletionStatus","iam:DeleteRole"]
+    resources = ["arn:aws:iam::*:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"]
+  }
 }
