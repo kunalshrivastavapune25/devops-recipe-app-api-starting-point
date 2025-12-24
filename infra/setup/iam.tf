@@ -224,6 +224,21 @@ data "aws_iam_policy_document" "ecs" {
     ]
     resources = ["*"]
   }
+
+  # ADD THIS STATEMENT BELOW
+  statement {
+    sid    = "CreateEcsServiceLinkedRole"
+    effect = "Allow"
+    actions = [
+      "iam:CreateServiceLinkedRole"
+    ]
+    resources = ["arn:aws:iam::*:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS*"]
+    condition {
+      test     = "StringEquals"
+      variable = "iam:AWSServiceName"
+      values   = ["ecs.amazonaws.com"]
+    }
+  }
 }
 
 resource "aws_iam_policy" "ecs" {
@@ -247,6 +262,9 @@ data "aws_iam_policy_document" "iam" {
     actions = [
       "iam:ListInstanceProfilesForRole",
       "iam:ListAttachedRolePolicies",
+      "iam:CreateServiceLinkedRole",
+      "iam:DeleteServiceLinkedRole",
+      "iam:GetServiceLinkedRoleDeletionStatus",
       "iam:DeleteRole",
       "iam:ListPolicyVersions",
       "iam:DeletePolicy",
