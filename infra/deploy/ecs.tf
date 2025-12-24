@@ -184,7 +184,7 @@ resource "aws_security_group" "ecs_service" {
     to_port   = 8000
     protocol  = "tcp"
     security_groups = [
-      aws_security_group.lb.id
+      aws_security_group.ecs_service.id
     ]
   }
 }
