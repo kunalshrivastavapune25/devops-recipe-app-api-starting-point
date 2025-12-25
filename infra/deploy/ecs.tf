@@ -185,7 +185,7 @@ resource "aws_security_group" "ecs_service" {
     protocol  = "tcp"
     security_groups = [
       aws_security_group.lb.id
-    ]    
+    ]
   }
 }
 
