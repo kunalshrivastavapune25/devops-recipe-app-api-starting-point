@@ -52,23 +52,6 @@ resource "aws_lb_listener" "api" {
   load_balancer_arn = aws_lb.api.arn
   port              = 80
   protocol          = "HTTP"
-  default_action {
-    type = "redirect"
-
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
-}
-
-resource "aws_lb_listener" "api_https" {
-  load_balancer_arn = aws_lb.api.arn
-  port              = 443
-  protocol          = "HTTPS"
-
-  certificate_arn = aws_acm_certificate_validation.cert.certificate_arn
 
   default_action {
     type             = "forward"
